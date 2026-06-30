@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 // ============================================================
-// DATA STRUCTURES
+// SURVEY DATA & SUB-COMPONENTS
 // ============================================================
 
 const PROJECT_TEAM = [
@@ -12,56 +12,173 @@ const PROJECT_TEAM = [
   { name: "Harbamon Terang", id: "21BtechIT07" }
 ];
 
-const SURVEY_QUESTIONS = [
-  {
-    id: "features",
-    title: "Key Features Desired",
-    question: "What features would you like to see in a bus tracking app?",
-    type: "bar",
-    data: [
-      { label: "Real-time Bus Location", value: 86.8, count: 250, color: "#e2e8f0" },
-      { label: "Notifications for Delays/Schedule Changes", value: 62.2, count: 179, color: "#cbd5e1" },
-      { label: "Estimated Time of Arrival (ETA)", value: 56.3, count: 162, color: "#94a3b8" },
-      { label: "Safety Alerts / Seat Availability", value: 43.1, count: 124, color: "#64748b" }
-    ]
-  },
-  {
-    id: "waiting",
-    title: "Waiting Times",
-    question: "How much time do you usually spend waiting at the bus stop?",
-    type: "donut",
-    data: [
-      { label: "More than 20 minutes", value: 42.7, color: "#3f3f46" },
-      { label: "5 - 10 minutes", value: 28.5, color: "#71717a" },
-      { label: "10 - 20 minutes", value: 23.6, color: "#a1a1aa" },
-      { label: "Less than 5 minutes", value: 5.2, color: "#e4e4e7" }
-    ]
-  },
-  {
-    id: "current_info",
-    title: "Current Methods",
-    question: "How do you currently get information about the bus schedule or location?",
-    type: "donut",
-    data: [
-      { label: "Phone calls/texts from driver/students", value: 49.7, color: "#a1a1aa" },
-      { label: "No information available", value: 19.8, color: "#3f3f46" },
-      { label: "Bus stop printed schedules", value: 16.7, color: "#71717a" },
-      { label: "Guessing based on time", value: 13.9, color: "#e4e4e7" }
-    ]
-  },
-  {
-    id: "use_frequency",
-    title: "Usage Frequency",
-    question: "How often do you use the bus for commuting to the University?",
-    type: "bar",
-    data: [
-      { label: "Daily Commute", value: 66.9, color: "#e4e4e7" },
-      { label: "Few times a week", value: 18.8, color: "#a1a1aa" },
-      { label: "Rarely", value: 12.2, color: "#71717a" },
-      { label: "Never", value: 2.1, color: "#3f3f46" }
-    ]
-  }
+// 1. Commute & Transit Data
+const CHART_FREQ = [
+  { label: "Daily", value: 192 },
+  { label: "Few Times", value: 35 },
+  { label: "Rarely", value: 55 },
+  { label: "Never", value: 6 }
 ];
+
+const CHART_WAIT = [
+  { label: "< 5m", value: 15 },
+  { label: "5-10m", value: 81 },
+  { label: "10-20m", value: 68 },
+  { label: "> 20m", value: 124 }
+];
+
+// 2. Current Info & Issues Data
+const CHART_DELAYS = [
+  { label: "Frequently", value: 132 },
+  { label: "Occasionally", value: 118 },
+  { label: "No Delays", value: 38 }
+];
+
+const CHART_INFO = [
+  { label: "Guessing based on time", percent: 49.7, color: "#ffffff" },
+  { label: "No information available", percent: 19.8, color: "#71717a" },
+  { label: "Bus stop schedules", percent: 16.7, color: "#a1a1aa" },
+  { label: "Phone calls/texts", percent: 13.9, color: "#3f3f46" }
+];
+
+const CHART_PROBLEMS = [
+  { label: "Uncertain bus arrival times", value: 172, percent: 59.7 },
+  { label: "Long waiting times at stops", value: 151, percent: 52.4 },
+  { label: "Delays without notification", value: 126, percent: 43.8 },
+  { label: "Lack of communication", value: 126, percent: 43.8 },
+  { label: "Safety concerns when waiting", value: 50, percent: 17.4 }
+];
+
+// 3. User Demand & Features Data
+const CHART_REALTIME = [
+  { label: "Yes, very helpful", percent: 93.1, color: "#ffffff" },
+  { label: "Yes, somewhat", percent: 5.0, color: "#71717a" },
+  { label: "No, not necessary", percent: 1.9, color: "#3f3f46" }
+];
+
+const CHART_REDUCTION = [
+  { label: "5 (Extremely helpful)", percent: 74.0, color: "#ffffff" },
+  { label: "4 (Very helpful)", percent: 11.5, color: "#a1a1aa" },
+  { label: "3 (Neutral)", percent: 10.0, color: "#71717a" },
+  { label: "2 / 1 (Low priority)", percent: 4.5, color: "#3f3f46" }
+];
+
+const CHART_FEATURES = [
+  { label: "Real-time bus location", value: 250, percent: 86.8 },
+  { label: "Notifications for delays", value: 179, percent: 62.2 },
+  { label: "Estimated arrival time (ETA)", value: 162, percent: 56.3 },
+  { label: "Safety alerts / details", value: 124, percent: 43.1 }
+];
+
+// --- Minimalist SVG Chart Components ---
+
+function VerticalBarChart({ data, yMax = 200, yTicks = [0, 50, 100, 150, 200] }) {
+  return (
+    <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "12px", marginTop: "16px" }}>
+      <div style={{ height: "140px", position: "relative", width: "100%" }}>
+        <svg width="100%" height="100%" viewBox="0 0 300 140" preserveAspectRatio="none" style={{ overflow: "visible" }}>
+          {/* Grid lines */}
+          {yTicks.map((tick, idx) => {
+            const y = 120 - (tick / yMax) * 100;
+            return (
+              <g key={idx}>
+                <line x1="25" y1={y} x2="295" y2={y} stroke="rgba(255,255,255,0.04)" strokeWidth="1" />
+                <text x="0" y={y + 3} fill="var(--text-muted)" fontSize="8" fontFamily="var(--font-mono)">{tick}</text>
+              </g>
+            );
+          })}
+          {/* Bars */}
+          {data.map((item, idx) => {
+            const barWidth = 32;
+            const spacing = (270 - data.length * barWidth) / (data.length - 1 || 1);
+            const x = 25 + idx * (barWidth + spacing);
+            const barHeight = (item.value / yMax) * 100;
+            const y = 120 - barHeight;
+            return (
+              <g key={idx}>
+                <rect x={x} y={y} width={barWidth} height={barHeight} fill="rgba(255, 255, 255, 0.06)" stroke="rgba(255, 255, 255, 0.12)" strokeWidth="1" />
+                <text x={x + barWidth / 2} y={y - 6} fill="#ffffff" fontSize="9" fontFamily="var(--font-mono)" textAnchor="middle">{item.value}</text>
+              </g>
+            );
+          })}
+          <line x1="25" y1="120" x2="295" y2="120" stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
+        </svg>
+      </div>
+      <div style={{ display: "flex", justifyContent: "space-between", paddingLeft: "25px", marginTop: "4px" }}>
+        {data.map((item, idx) => (
+          <div key={idx} style={{ flex: 1, textAnchor: "middle", fontSize: "0.75rem", color: "var(--text-secondary)", textAlign: "center" }}>
+            {item.label}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function HorizontalBarChart({ data }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "16px" }}>
+      {data.map((item, idx) => (
+        <div key={idx} style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.78rem", color: "var(--text-secondary)" }}>
+            <span style={{ textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap", maxWidth: "200px" }}>{item.label}</span>
+            <span style={{ fontFamily: "var(--font-mono)", color: "#ffffff" }}>{item.value} ({item.percent}%)</span>
+          </div>
+          <div style={{ height: "4px", background: "rgba(255,255,255,0.03)", borderRadius: "2px", overflow: "hidden" }}>
+            <div style={{ height: "100%", width: `${item.percent}%`, background: "#ffffff", borderRadius: "2px" }} />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function DonutChart({ data }) {
+  let accumulatedPercent = 0;
+  return (
+    <div style={{ display: "flex", flexWrap: "wrap", gap: "20px", alignItems: "center", justifyContent: "space-between", marginTop: "16px" }}>
+      <svg width="80" height="80" viewBox="0 0 100 100" style={{ transform: "rotate(-90deg)" }}>
+        {data.map((item, idx) => {
+          const radius = 38;
+          const circumference = 2 * Math.PI * radius;
+          const strokeDashOffset = circumference - (item.percent / 100) * circumference;
+          const rotation = (accumulatedPercent / 100) * 360;
+          accumulatedPercent += item.percent;
+          return (
+            <circle
+              key={idx}
+              cx="50"
+              cy="50"
+              r={radius}
+              fill="none"
+              stroke={item.color}
+              strokeWidth="8"
+              strokeDasharray={circumference}
+              strokeDashoffset={strokeDashOffset}
+              style={{
+                transformOrigin: "center",
+                transform: `rotate(${rotation}deg)`
+              }}
+            />
+          );
+        })}
+      </svg>
+      <div style={{ display: "flex", flexDirection: "column", gap: "6px", flex: 1, minWidth: "150px" }}>
+        {data.map((item, idx) => (
+          <div key={idx} style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.75rem" }}>
+            <span style={{ width: "6px", height: "6px", borderRadius: "50%", backgroundColor: item.color }} />
+            <span style={{ color: "var(--text-secondary)", flex: 1 }}>{item.label}</span>
+            <strong style={{ color: "#ffffff", fontFamily: "var(--font-mono)" }}>{item.percent}%</strong>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// SYSTEM DESIGN SCHEMA CONFIGS
+// ============================================================
 
 const DB_SCHEMAS = {
   admin: {
@@ -152,7 +269,6 @@ const TEST_CASES = [
 
 export default function App() {
   const [activeSection, setActiveSection] = useState("overview");
-  const [activeSurveyTab, setActiveSurveyTab] = useState("features");
   const [activeDfdLevel, setActiveDfdLevel] = useState(0);
   const [activeDbTable, setActiveDbTable] = useState("users");
   
@@ -343,7 +459,7 @@ export default function App() {
                     System Objectives
                   </h4>
                   <ul style={{ paddingLeft: "16px", display: "flex", flexDirection: "column", gap: "12px", fontSize: "0.88rem", color: "var(--text-secondary)", lineHeight: "1.6" }}>
-                    <li><strong>GPS Synchronization:</strong> Maintain active telemetry telemetry with minimal refresh delays.</li>
+                    <li><strong>GPS Synchronization:</strong> Maintain active telemetry with minimal refresh delays.</li>
                     <li><strong>Commuter Alerts:</strong> Allow passengers to bookmark routes and monitor local timetables.</li>
                     <li><strong>Central Configuration:</strong> Enable administrators to configure routes, fleet listings, and driver listings.</li>
                     <li><strong>Cross-Platform Build:</strong> Distribute on both Android and iOS targets using a Flutter code model.</li>
@@ -355,115 +471,69 @@ export default function App() {
             {/* SURVEY DATA */}
             <section id="survey" style={{ scrollMarginTop: "120px" }}>
               <h3 style={{ fontSize: "1.5rem", color: "#ffffff", marginBottom: "12px" }}>Commuter Survey Insights</h3>
-              <p style={{ marginBottom: "24px" }}>
+              <p style={{ marginBottom: "28px" }}>
                 Prior to development, the team evaluated responses from <strong>288 campus participants</strong>. The results highlight constraints with the current transit system:
               </p>
 
-              {/* Minimal selector tab */}
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginBottom: "24px", borderBottom: "1px solid var(--border-color)", paddingBottom: "12px" }}>
-                {SURVEY_QUESTIONS.map((q) => (
-                  <button
-                    key={q.id}
-                    onClick={() => setActiveSurveyTab(q.id)}
-                    style={{
-                      padding: "6px 12px",
-                      background: "transparent",
-                      border: "none",
-                      color: activeSurveyTab === q.id ? "#ffffff" : "var(--text-secondary)",
-                      fontSize: "0.85rem",
-                      cursor: "pointer",
-                      fontWeight: activeSurveyTab === q.id ? "600" : "400",
-                      position: "relative",
-                      transition: "color 0.2s"
-                    }}
-                  >
-                    {q.title}
-                    {activeSurveyTab === q.id && (
-                      <span style={{ position: "absolute", bottom: "-13px", left: 0, right: 0, height: "1px", background: "#ffffff" }} />
-                    )}
-                  </button>
-                ))}
-              </div>
+              {/* Minimalist Grid of All 8 Charts */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "32px" }}>
+                
+                {/* 1. Frequency of Bus Usage */}
+                <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid var(--border-color)", padding: "20px", borderRadius: "8px" }}>
+                  <h4 style={{ fontSize: "0.88rem", color: "#ffffff", fontWeight: "600", marginBottom: "4px" }}>Frequency of Bus Usage</h4>
+                  <span style={{ fontSize: "0.68rem", color: "var(--text-muted)" }}>Total Responses: 288</span>
+                  <VerticalBarChart data={CHART_FREQ} yMax={200} yTicks={[0, 50, 100, 150, 200]} />
+                </div>
 
-              {/* Chart Visualizer */}
-              <div style={{ padding: "12px 0" }}>
-                {SURVEY_QUESTIONS.filter(q => q.id === activeSurveyTab).map((q) => (
-                  <div key={q.id}>
-                    <p style={{ fontSize: "0.9rem", color: "var(--text-secondary)", marginBottom: "24px", fontStyle: "italic" }}>
-                      "{q.question}"
-                    </p>
-                    
-                    {q.type === "bar" ? (
-                      <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
-                        {q.data.map((item, idx) => (
-                          <div key={idx} style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "6px 16px" }}>
-                            <div style={{ flex: "1 1 220px", fontSize: "0.85rem", color: "var(--text-secondary)" }}>
-                              {item.label}
-                            </div>
-                            <div style={{ flex: "2 1 280px", display: "flex", alignItems: "center", gap: "12px" }}>
-                              <div style={{ flex: 1, height: "4px", background: "rgba(255,255,255,0.04)", overflow: "hidden" }}>
-                                <div 
-                                  style={{ 
-                                    height: "100%", 
-                                    width: `${item.value}%`, 
-                                    background: "#e4e4e7",
-                                    transition: "width 0.8s ease"
-                                  }} 
-                                />
-                              </div>
-                              <span style={{ fontFamily: "var(--font-mono)", fontSize: "0.8rem", color: "#ffffff", width: "42px", textAlign: "right" }}>
-                                {item.value}%
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div style={{ display: "flex", flexWrap: "wrap", gap: "40px", alignItems: "center", justifyContent: "space-around" }}>
-                        <svg width="150" height="150" viewBox="0 0 150 150" style={{ transform: "rotate(-90deg)" }}>
-                          {(() => {
-                            let accumulatedPercent = 0;
-                            return q.data.map((item, idx) => {
-                              const radius = 60;
-                              const circumference = 2 * Math.PI * radius;
-                              const strokeDashOffset = circumference - (item.value / 100) * circumference;
-                              const rotation = (accumulatedPercent / 100) * 360;
-                              accumulatedPercent += item.value;
-                              
-                              return (
-                                <circle
-                                  key={idx}
-                                  cx="75"
-                                  cy="75"
-                                  r={radius}
-                                  fill="none"
-                                  stroke={item.color}
-                                  strokeWidth="10"
-                                  strokeDasharray={circumference}
-                                  strokeDashoffset={strokeDashOffset}
-                                  style={{ 
-                                    transformOrigin: "center",
-                                    transform: `rotate(${rotation}deg)`
-                                  }}
-                                />
-                              );
-                            });
-                          })()}
-                        </svg>
+                {/* 2. Average Waiting Time */}
+                <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid var(--border-color)", padding: "20px", borderRadius: "8px" }}>
+                  <h4 style={{ fontSize: "0.88rem", color: "#ffffff", fontWeight: "600", marginBottom: "4px" }}>Average Waiting Time at Stop</h4>
+                  <span style={{ fontSize: "0.68rem", color: "var(--text-muted)" }}>Total Responses: 288</span>
+                  <VerticalBarChart data={CHART_WAIT} yMax={150} yTicks={[0, 25, 50, 75, 100, 125, 150]} />
+                </div>
 
-                        <div style={{ display: "flex", flexDirection: "column", gap: "10px", minWidth: "220px" }}>
-                          {q.data.map((item, idx) => (
-                            <div key={idx} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                              <span style={{ width: "8px", height: "8px", borderRadius: "50%", backgroundColor: item.color, display: "inline-block" }}></span>
-                              <span style={{ fontSize: "0.82rem", color: "var(--text-secondary)", flex: 1 }}>{item.label}</span>
-                              <strong style={{ fontSize: "0.82rem", color: "#ffffff", fontFamily: "var(--font-mono)" }}>{item.value}%</strong>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
+                {/* 3. Delays Experienced */}
+                <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid var(--border-color)", padding: "20px", borderRadius: "8px" }}>
+                  <h4 style={{ fontSize: "0.88rem", color: "#ffffff", fontWeight: "600", marginBottom: "4px" }}>Delays Due to Lack of Info</h4>
+                  <span style={{ fontSize: "0.68rem", color: "var(--text-muted)" }}>Total Responses: 288</span>
+                  <VerticalBarChart data={CHART_DELAYS} yMax={150} yTicks={[0, 50, 100, 150]} />
+                </div>
+
+                {/* 4. Current Info Retrieval */}
+                <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid var(--border-color)", padding: "20px", borderRadius: "8px" }}>
+                  <h4 style={{ fontSize: "0.88rem", color: "#ffffff", fontWeight: "600", marginBottom: "4px" }}>Current Information Sources</h4>
+                  <span style={{ fontSize: "0.68rem", color: "var(--text-muted)" }}>Total Responses: 288</span>
+                  <DonutChart data={CHART_INFO} />
+                </div>
+
+                {/* 5. Common Problems Faced */}
+                <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid var(--border-color)", padding: "20px", borderRadius: "8px" }}>
+                  <h4 style={{ fontSize: "0.88rem", color: "#ffffff", fontWeight: "600", marginBottom: "4px" }}>Common Problems Faced</h4>
+                  <span style={{ fontSize: "0.68rem", color: "var(--text-muted)" }}>Select all that apply</span>
+                  <HorizontalBarChart data={CHART_PROBLEMS} />
+                </div>
+
+                {/* 6. Utility of Real-time Info */}
+                <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid var(--border-color)", padding: "20px", borderRadius: "8px" }}>
+                  <h4 style={{ fontSize: "0.88rem", color: "#ffffff", fontWeight: "600", marginBottom: "4px" }}>Demand for Real-Time Telemetry</h4>
+                  <span style={{ fontSize: "0.68rem", color: "var(--text-muted)" }}>Total Responses: 288</span>
+                  <DonutChart data={CHART_REALTIME} />
+                </div>
+
+                {/* 7. Reduction in Uncertainty */}
+                <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid var(--border-color)", padding: "20px", borderRadius: "8px" }}>
+                  <h4 style={{ fontSize: "0.88rem", color: "#ffffff", fontWeight: "600", marginBottom: "4px" }}>Uncertainty Reduction Impact</h4>
+                  <span style={{ fontSize: "0.68rem", color: "var(--text-muted)" }}>Rating 1 (Low) to 5 (High)</span>
+                  <DonutChart data={CHART_REDUCTION} />
+                </div>
+
+                {/* 8. Desired Features */}
+                <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid var(--border-color)", padding: "20px", borderRadius: "8px" }}>
+                  <h4 style={{ fontSize: "0.88rem", color: "#ffffff", fontWeight: "600", marginBottom: "4px" }}>Desired Application Features</h4>
+                  <span style={{ fontSize: "0.68rem", color: "var(--text-muted)" }}>Select all that apply</span>
+                  <HorizontalBarChart data={CHART_FEATURES} />
+                </div>
+
               </div>
             </section>
 
