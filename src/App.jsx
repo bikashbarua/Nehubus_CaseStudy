@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 
 // ============================================================
-// SURVEY DATA & SUB-COMPONENTS
+// SURVEY DATA WITH INTEGRATED COLOR PALETTES
 // ============================================================
 
 const PROJECT_TEAM = [
@@ -14,75 +14,77 @@ const PROJECT_TEAM = [
 
 // 1. Commute & Transit Data
 const CHART_FREQ = [
-  { label: "Daily", value: 192 },
-  { label: "Few Times", value: 35 },
-  { label: "Rarely", value: 55 },
-  { label: "Never", value: 6 }
+  { label: "Daily", value: 192, color: "#3b82f6" },       // Blue
+  { label: "Few Times", value: 35, color: "#06b6d4" },   // Cyan
+  { label: "Rarely", value: 55, color: "#f59e0b" },      // Amber
+  { label: "Never", value: 6, color: "#ef4444" }        // Red
 ];
 
 const CHART_WAIT = [
-  { label: "< 5m", value: 15 },
-  { label: "5-10m", value: 81 },
-  { label: "10-20m", value: 68 },
-  { label: "> 20m", value: 124 }
+  { label: "< 5m", value: 15, color: "#10b981" },        // Emerald
+  { label: "5-10m", value: 81, color: "#06b6d4" },       // Cyan
+  { label: "10-20m", value: 68, color: "#6366f1" },      // Indigo
+  { label: "> 20m", value: 124, color: "#f59e0b" }       // Amber
 ];
 
 // 2. Current Info & Issues Data
 const CHART_DELAYS = [
-  { label: "Frequently", value: 132 },
-  { label: "Occasionally", value: 118 },
-  { label: "No Delays", value: 38 }
+  { label: "Frequently", value: 132, color: "#f43f5e" },  // Rose
+  { label: "Occasionally", value: 118, color: "#fb7185" },// Light Rose
+  { label: "No Delays", value: 38, color: "#10b981" }    // Emerald
 ];
 
 const CHART_INFO = [
-  { label: "Guessing based on time", percent: 49.7, color: "#ffffff" },
-  { label: "No information available", percent: 19.8, color: "#71717a" },
-  { label: "Bus stop schedules", percent: 16.7, color: "#a1a1aa" },
-  { label: "Phone calls/texts", percent: 13.9, color: "#3f3f46" }
+  { label: "Guessing based on time", percent: 49.7, color: "#f59e0b" },
+  { label: "No information available", percent: 19.8, color: "#ef4444" },
+  { label: "Bus stop schedules", percent: 16.7, color: "#3b82f6" },
+  { label: "Phone calls/texts", percent: 13.9, color: "#10b981" }
 ];
 
 const CHART_PROBLEMS = [
-  { label: "Uncertain bus arrival times", value: 172, percent: 59.7 },
-  { label: "Long waiting times at stops", value: 151, percent: 52.4 },
-  { label: "Delays without notification", value: 126, percent: 43.8 },
-  { label: "Lack of communication", value: 126, percent: 43.8 },
-  { label: "Safety concerns when waiting", value: 50, percent: 17.4 }
+  { label: "Uncertain bus arrival times", value: 172, percent: 59.7, color: "#6366f1" },
+  { label: "Long waiting times at stops", value: 151, percent: 52.4, color: "#8b5cf6" },
+  { label: "Delays without notification", value: 126, percent: 43.8, color: "#ec4899" },
+  { label: "Lack of communication", value: 126, percent: 43.8, color: "#f43f5e" },
+  { label: "Safety concerns when waiting", value: 50, percent: 17.4, color: "#f59e0b" }
 ];
 
 // 3. User Demand & Features Data
 const CHART_REALTIME = [
-  { label: "Yes, very helpful", percent: 93.1, color: "#ffffff" },
-  { label: "Yes, somewhat", percent: 5.0, color: "#71717a" },
-  { label: "No, not necessary", percent: 1.9, color: "#3f3f46" }
+  { label: "Yes, very helpful", percent: 93.1, color: "#2563eb" },
+  { label: "Yes, somewhat", percent: 5.0, color: "#f43f5e" },
+  { label: "No, not necessary", percent: 1.9, color: "#eab308" }
 ];
 
 const CHART_REDUCTION = [
-  { label: "5 (Extremely helpful)", percent: 74.0, color: "#ffffff" },
-  { label: "4 (Very helpful)", percent: 11.5, color: "#a1a1aa" },
-  { label: "3 (Neutral)", percent: 10.0, color: "#71717a" },
-  { label: "2 / 1 (Low priority)", percent: 4.5, color: "#3f3f46" }
+  { label: "5 (Extremely helpful)", percent: 74.0, color: "#a855f7" },
+  { label: "4 (Very helpful)", percent: 11.5, color: "#60a5fa" },
+  { label: "3 (Neutral)", percent: 10.0, color: "#34d399" },
+  { label: "2 / 1 (Low priority)", percent: 4.5, color: "#f87171" }
 ];
 
 const CHART_FEATURES = [
-  { label: "Real-time bus location", value: 250, percent: 86.8 },
-  { label: "Notifications for delays", value: 179, percent: 62.2 },
-  { label: "Estimated arrival time (ETA)", value: 162, percent: 56.3 },
-  { label: "Safety alerts / details", value: 124, percent: 43.1 }
+  { label: "Real-time bus location", value: 250, percent: 86.8, color: "#3b82f6" },
+  { label: "Notifications for delays", value: 179, percent: 62.2, color: "#06b6d4" },
+  { label: "Estimated arrival time (ETA)", value: 162, percent: 56.3, color: "#10b981" },
+  { label: "Safety alerts / details", value: 124, percent: 43.1, color: "#f59e0b" }
 ];
 
-// --- Minimalist SVG Chart Components ---
+// --- Interactive SVG Chart Sub-Components ---
 
 function VerticalBarChart({ data, yMax = 200, yTicks = [0, 50, 100, 150, 200] }) {
+  const [hoveredIdx, setHoveredIdx] = useState(null);
+
   return (
     <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "12px", marginTop: "16px" }}>
-      <div style={{ height: "140px", position: "relative", width: "100%" }}>
+      <div style={{ height: "150px", position: "relative", width: "100%" }}>
         <svg width="100%" height="100%" viewBox="0 0 300 140" preserveAspectRatio="none" style={{ overflow: "visible" }}>
           {/* Grid lines */}
           {yTicks.map((tick, idx) => {
             const y = 120 - (tick / yMax) * 100;
             return (
               <g key={idx}>
-                <line x1="25" y1={y} x2="295" y2={y} stroke="rgba(255,255,255,0.04)" strokeWidth="1" />
+                <line x1="25" y1={y} x2="295" y2={y} stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
                 <text x="0" y={y + 3} fill="var(--text-muted)" fontSize="8" fontFamily="var(--font-mono)">{tick}</text>
               </g>
             );
@@ -94,19 +96,55 @@ function VerticalBarChart({ data, yMax = 200, yTicks = [0, 50, 100, 150, 200] })
             const x = 25 + idx * (barWidth + spacing);
             const barHeight = (item.value / yMax) * 100;
             const y = 120 - barHeight;
+            const isHovered = hoveredIdx === idx;
+
             return (
-              <g key={idx}>
-                <rect x={x} y={y} width={barWidth} height={barHeight} fill="rgba(255, 255, 255, 0.06)" stroke="rgba(255, 255, 255, 0.12)" strokeWidth="1" />
-                <text x={x + barWidth / 2} y={y - 6} fill="#ffffff" fontSize="9" fontFamily="var(--font-mono)" textAnchor="middle">{item.value}</text>
+              <g 
+                key={idx}
+                onMouseEnter={() => setHoveredIdx(idx)}
+                onMouseLeave={() => setHoveredIdx(null)}
+                style={{ cursor: "pointer" }}
+              >
+                <rect 
+                  x={x} 
+                  y={y} 
+                  width={barWidth} 
+                  height={barHeight} 
+                  fill={isHovered ? `${item.color}ee` : `${item.color}cc`} 
+                  stroke={item.color} 
+                  strokeWidth="1.5"
+                  style={{ transition: "all 0.2s ease" }}
+                />
+                <text 
+                  x={x + barWidth / 2} 
+                  y={y - 6} 
+                  fill={isHovered ? "#ffffff" : "var(--text-secondary)"} 
+                  fontSize="9" 
+                  fontFamily="var(--font-mono)" 
+                  textAnchor="middle"
+                  style={{ fontWeight: isHovered ? "bold" : "normal", transition: "all 0.2s" }}
+                >
+                  {item.value}
+                </text>
               </g>
             );
           })}
-          <line x1="25" y1="120" x2="295" y2="120" stroke="rgba(255,255,255,0.12)" strokeWidth="1" />
+          <line x1="25" y1="120" x2="295" y2="120" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
         </svg>
       </div>
       <div style={{ display: "flex", justifyContent: "space-between", paddingLeft: "25px", marginTop: "4px" }}>
         {data.map((item, idx) => (
-          <div key={idx} style={{ flex: 1, textAnchor: "middle", fontSize: "0.75rem", color: "var(--text-secondary)", textAlign: "center" }}>
+          <div 
+            key={idx} 
+            style={{ 
+              flex: 1, 
+              fontSize: "0.75rem", 
+              color: hoveredIdx === idx ? "#ffffff" : "var(--text-secondary)", 
+              textAlign: "center",
+              fontWeight: hoveredIdx === idx ? "600" : "400",
+              transition: "all 0.2s"
+            }}
+          >
             {item.label}
           </div>
         ))}
@@ -116,34 +154,56 @@ function VerticalBarChart({ data, yMax = 200, yTicks = [0, 50, 100, 150, 200] })
 }
 
 function HorizontalBarChart({ data }) {
+  const [hoveredIdx, setHoveredIdx] = useState(null);
+
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "16px" }}>
-      {data.map((item, idx) => (
-        <div key={idx} style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.78rem", color: "var(--text-secondary)" }}>
-            <span style={{ textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap", maxWidth: "200px" }}>{item.label}</span>
-            <span style={{ fontFamily: "var(--font-mono)", color: "#ffffff" }}>{item.value} ({item.percent}%)</span>
+      {data.map((item, idx) => {
+        const isHovered = hoveredIdx === idx;
+        return (
+          <div 
+            key={idx} 
+            onMouseEnter={() => setHoveredIdx(idx)}
+            onMouseLeave={() => setHoveredIdx(null)}
+            style={{ display: "flex", flexDirection: "column", gap: "4px", cursor: "pointer" }}
+          >
+            <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.78rem", color: isHovered ? "#ffffff" : "var(--text-secondary)", transition: "all 0.2s" }}>
+              <span style={{ textOverflow: "ellipsis", overflow: "hidden", whiteSpace: "nowrap", maxWidth: "200px" }}>{item.label}</span>
+              <span style={{ fontFamily: "var(--font-mono)", fontWeight: "500" }}>{item.value} ({item.percent}%)</span>
+            </div>
+            <div style={{ height: "6px", background: "rgba(255,255,255,0.03)", borderRadius: "3px", overflow: "hidden" }}>
+              <div 
+                style={{ 
+                  height: "100%", 
+                  width: `${item.percent}%`, 
+                  background: item.color || "var(--color-primary)", 
+                  borderRadius: "3px",
+                  opacity: isHovered ? 1 : 0.8,
+                  transition: "all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)"
+                }} 
+              />
+            </div>
           </div>
-          <div style={{ height: "4px", background: "rgba(255,255,255,0.03)", borderRadius: "2px", overflow: "hidden" }}>
-            <div style={{ height: "100%", width: `${item.percent}%`, background: "#ffffff", borderRadius: "2px" }} />
-          </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
 
 function DonutChart({ data }) {
+  const [hoveredIdx, setHoveredIdx] = useState(null);
   let accumulatedPercent = 0;
+  
   return (
     <div style={{ display: "flex", flexWrap: "wrap", gap: "20px", alignItems: "center", justifyContent: "space-between", marginTop: "16px" }}>
-      <svg width="80" height="80" viewBox="0 0 100 100" style={{ transform: "rotate(-90deg)" }}>
+      <svg width="90" height="90" viewBox="0 0 100 100" style={{ transform: "rotate(-90deg)" }}>
         {data.map((item, idx) => {
-          const radius = 38;
+          const radius = 36;
           const circumference = 2 * Math.PI * radius;
           const strokeDashOffset = circumference - (item.percent / 100) * circumference;
           const rotation = (accumulatedPercent / 100) * 360;
           accumulatedPercent += item.percent;
+          const isHovered = hoveredIdx === idx;
           return (
             <circle
               key={idx}
@@ -152,32 +212,52 @@ function DonutChart({ data }) {
               r={radius}
               fill="none"
               stroke={item.color}
-              strokeWidth="8"
+              strokeWidth={isHovered ? "11" : "8"}
               strokeDasharray={circumference}
               strokeDashoffset={strokeDashOffset}
+              onMouseEnter={() => setHoveredIdx(idx)}
+              onMouseLeave={() => setHoveredIdx(null)}
               style={{
                 transformOrigin: "center",
-                transform: `rotate(${rotation}deg)`
+                transform: `rotate(${rotation}deg)`,
+                cursor: "pointer",
+                transition: "all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1)"
               }}
             />
           );
         })}
       </svg>
       <div style={{ display: "flex", flexDirection: "column", gap: "6px", flex: 1, minWidth: "150px" }}>
-        {data.map((item, idx) => (
-          <div key={idx} style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "0.75rem" }}>
-            <span style={{ width: "6px", height: "6px", borderRadius: "50%", backgroundColor: item.color }} />
-            <span style={{ color: "var(--text-secondary)", flex: 1 }}>{item.label}</span>
-            <strong style={{ color: "#ffffff", fontFamily: "var(--font-mono)" }}>{item.percent}%</strong>
-          </div>
-        ))}
+        {data.map((item, idx) => {
+          const isHovered = hoveredIdx === idx;
+          return (
+            <div 
+              key={idx} 
+              onMouseEnter={() => setHoveredIdx(idx)}
+              onMouseLeave={() => setHoveredIdx(null)}
+              style={{ 
+                display: "flex", 
+                alignItems: "center", 
+                gap: "8px", 
+                fontSize: "0.75rem", 
+                cursor: "pointer",
+                transform: isHovered ? "translateX(4px)" : "translateX(0)",
+                transition: "all 0.2s"
+              }}
+            >
+              <span style={{ width: "6px", height: "6px", borderRadius: "50%", backgroundColor: item.color }} />
+              <span style={{ color: isHovered ? "#ffffff" : "var(--text-secondary)", flex: 1, transition: "color 0.2s" }}>{item.label}</span>
+              <strong style={{ color: "#ffffff", fontFamily: "var(--font-mono)" }}>{item.percent}%</strong>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
 }
 
 // ============================================================
-// SYSTEM DESIGN SCHEMA CONFIGS
+// SYSTEM ARCHITECTURE & SCHEMA CONFIGS
 // ============================================================
 
 const DB_SCHEMAS = {
@@ -273,8 +353,8 @@ export default function App() {
   const [activeDbTable, setActiveDbTable] = useState("users");
   
   // Mobile Simulator state
-  const [simulatorApp, setSimulatorApp] = useState("student"); 
-  const [simulatorScreen, setSimulatorScreen] = useState("dashboard"); 
+  const [simulatorApp, setSimulatorApp] = useState("student"); // 'student', 'driver', 'admin'
+  const [simulatorScreen, setSimulatorScreen] = useState("dashboard"); // dashboard, welcome, signup, map, favorites, schedules, login, sharing, addroute, modifyroute
   
   // Custom interactive tracking states in simulator
   const [simSelectedBus, setSimSelectedBus] = useState("Bus 2 (ML200000)");
@@ -825,8 +905,11 @@ export default function App() {
                       {simulatorApp === "student" && (
                         <>
                           <button onClick={() => setSimulatorScreen("welcome")} style={{ fontSize: "0.75rem", padding: "4px 8px", borderRadius: "2px", background: simulatorScreen === "welcome" ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.02)", border: "none", color: "#fff", cursor: "pointer" }}>Welcome</button>
+                          <button onClick={() => setSimulatorScreen("signup")} style={{ fontSize: "0.75rem", padding: "4px 8px", borderRadius: "2px", background: simulatorScreen === "signup" ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.02)", border: "none", color: "#fff", cursor: "pointer" }}>Signup</button>
                           <button onClick={() => setSimulatorScreen("dashboard")} style={{ fontSize: "0.75rem", padding: "4px 8px", borderRadius: "2px", background: simulatorScreen === "dashboard" ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.02)", border: "none", color: "#fff", cursor: "pointer" }}>Dashboard</button>
-                          <button onClick={() => setSimulatorScreen("map")} style={{ fontSize: "0.75rem", padding: "4px 8px", borderRadius: "2px", background: simulatorScreen === "map" ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.02)", border: "none", color: "#fff", cursor: "pointer" }}>Map</button>
+                          <button onClick={() => setSimulatorScreen("map")} style={{ fontSize: "0.75rem", padding: "4px 8px", borderRadius: "2px", background: simulatorScreen === "map" ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.02)", border: "none", color: "#fff", cursor: "pointer" }}>Route Map</button>
+                          <button onClick={() => setSimulatorScreen("routepage")} style={{ fontSize: "0.75rem", padding: "4px 8px", borderRadius: "2px", background: simulatorScreen === "routepage" ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.02)", border: "none", color: "#fff", cursor: "pointer" }}>Route Page</button>
+                          <button onClick={() => setSimulatorScreen("livetrack")} style={{ fontSize: "0.75rem", padding: "4px 8px", borderRadius: "2px", background: simulatorScreen === "livetrack" ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.02)", border: "none", color: "#fff", cursor: "pointer" }}>Live Track</button>
                           <button onClick={() => setSimulatorScreen("favorites")} style={{ fontSize: "0.75rem", padding: "4px 8px", borderRadius: "2px", background: simulatorScreen === "favorites" ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.02)", border: "none", color: "#fff", cursor: "pointer" }}>Favorites</button>
                           <button onClick={() => setSimulatorScreen("schedules")} style={{ fontSize: "0.75rem", padding: "4px 8px", borderRadius: "2px", background: simulatorScreen === "schedules" ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.02)", border: "none", color: "#fff", cursor: "pointer" }}>Schedules</button>
                         </>
@@ -839,243 +922,564 @@ export default function App() {
                       )}
                       {simulatorApp === "admin" && (
                         <>
-                          <button onClick={() => setSimulatorScreen("dashboard")} style={{ fontSize: "0.75rem", padding: "4px 8px", borderRadius: "2px", background: simulatorScreen === "dashboard" ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.02)", border: "none", color: "#fff", cursor: "pointer" }}>Menu</button>
+                          <button onClick={() => setSimulatorScreen("dashboard")} style={{ fontSize: "0.75rem", padding: "4px 8px", borderRadius: "2px", background: simulatorScreen === "dashboard" ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.02)", border: "none", color: "#fff", cursor: "pointer" }}>Dashboard</button>
                           <button onClick={() => setSimulatorScreen("addroute")} style={{ fontSize: "0.75rem", padding: "4px 8px", borderRadius: "2px", background: simulatorScreen === "addroute" ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.02)", border: "none", color: "#fff", cursor: "pointer" }}>Add Route</button>
+                          <button onClick={() => setSimulatorScreen("modifyroute")} style={{ fontSize: "0.75rem", padding: "4px 8px", borderRadius: "2px", background: simulatorScreen === "modifyroute" ? "rgba(255,255,255,0.1)" : "rgba(255,255,255,0.02)", border: "none", color: "#fff", cursor: "pointer" }}>Modify Route</button>
                         </>
                       )}
                     </div>
                   </div>
                 </div>
 
-                {/* Smartphone Preview Mockup */}
+                {/* Smartphone Preview Mockup - High Fidelity */}
                 <div style={{
-                  width: "260px",
-                  height: "500px",
-                  border: "1px solid rgba(255,255,255,0.12)",
-                  borderRadius: "20px",
-                  background: "#0c0c0e",
+                  width: "270px",
+                  height: "530px",
+                  border: "12px solid #1e293b",
+                  borderRadius: "32px",
+                  background: "#fdfdfd", // Light canvas representation matching flutter app's clean white screens
                   position: "relative",
-                  boxShadow: "0 20px 40px -10px rgba(0,0,0,0.6)",
+                  boxShadow: "0 20px 45px -10px rgba(0,0,0,0.6)",
                   overflow: "hidden",
                   display: "flex",
                   flexDirection: "column"
                 }}>
-                  {/* Status header */}
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px", background: "rgba(255,255,255,0.01)", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
-                    <span style={{ fontWeight: "500", fontSize: "0.68rem", color: "#ffffff", fontFamily: "var(--font-mono)" }}>NEHU BUS</span>
+                  {/* Status header (Flutter style) */}
+                  <div style={{ 
+                    display: "flex", 
+                    justifyContent: "space-between", 
+                    alignItems: "center", 
+                    padding: "6px 14px", 
+                    background: "#007acc", // Standard Blue
+                    color: "#ffffff"
+                  }}>
+                    <span style={{ fontWeight: "600", fontSize: "0.68rem", fontFamily: "var(--font-mono)" }}>NEHU BUS</span>
                     <div style={{ display: "flex", gap: "6px", alignItems: "center" }}>
-                      <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: simDriverSharing ? "#a5b4fc" : "#ef4444" }}></span>
-                      <span style={{ fontSize: "0.65rem", color: "var(--text-muted)" }}>12:00</span>
+                      <span style={{ fontSize: "0.6rem" }}>📶 5G</span>
+                      <span style={{ fontSize: "0.6rem" }}>🔋 97%</span>
                     </div>
                   </div>
 
                   {/* Simulator Screen Content */}
-                  <div style={{ flex: 1, padding: "16px", overflowY: "auto", display: "flex", flexDirection: "column", fontSize: "0.78rem" }}>
+                  <div style={{ flex: 1, display: "flex", flexDirection: "column", fontSize: "0.78rem", background: "#f8fafc", color: "#1e293b", position: "relative" }}>
                     
-                    {/* Welcome Screen */}
+                    {/* --- STUDENT WELCOME PAGE (5.3 a) --- */}
                     {simulatorApp === "student" && simulatorScreen === "welcome" && (
-                      <div style={{ textAlign: "center", display: "flex", flexDirection: "column", justifyContent: "center", flex: 1 }}>
-                        <div style={{ fontSize: "2.5rem", color: "#ffffff", marginBottom: "16px" }}>⚪</div>
-                        <h4 style={{ fontSize: "1rem", color: "#fff", marginBottom: "4px" }}>Welcome</h4>
-                        <p style={{ fontSize: "0.7rem", color: "var(--text-secondary)", marginBottom: "20px" }}>NEHU Tracking Services</p>
-                        <button onClick={() => setSimulatorScreen("dashboard")} style={{ padding: "8px", background: "rgba(255,255,255,0.08)", color: "#fff", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "4px", cursor: "pointer", fontSize: "0.75rem", marginBottom: "6px" }}>Login</button>
-                      </div>
-                    )}
-
-                    {/* Student Dashboard */}
-                    {simulatorApp === "student" && simulatorScreen === "dashboard" && (
-                      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                        <div style={{ borderBottom: "1px solid rgba(255,255,255,0.05)", paddingBottom: "10px", marginBottom: "6px" }}>
-                          <span style={{ fontSize: "0.68rem", color: "var(--text-muted)" }}>ACTIVE TELEMETRY</span>
-                          <div style={{ color: "#ffffff", fontWeight: "600", fontSize: "0.85rem", marginTop: "2px" }}>2 Buses Operational</div>
+                      <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "20px", alignItems: "center", justifyContent: "space-between", background: "#ffffff" }}>
+                        <div style={{ width: "100%", display: "flex", justifyContent: "flex-end", fontSize: "0.6rem", color: "var(--text-muted)" }}>
+                          2:45 PM
                         </div>
-
-                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                          <div onClick={() => setSimulatorScreen("map")} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)", padding: "10px", borderRadius: "4px", cursor: "pointer" }}>
-                            Live Tracker
+                        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "10px" }}>
+                          {/* Mountain Logo illustration */}
+                          <div style={{ width: "70px", height: "70px", borderRadius: "50%", background: "#e2e8f0", display: "flex", alignItems: "center", justifyContent: "center", position: "relative", overflow: "hidden" }}>
+                            <svg viewBox="0 0 100 100" width="100%" height="100%">
+                              {/* Mountains */}
+                              <polygon points="20,80 50,30 80,80" fill="#10b981" />
+                              <polygon points="40,80 65,45 90,80" fill="#047857" />
+                              {/* Blue bus */}
+                              <rect x="30" y="65" width="40" height="15" rx="3" fill="#0284c7" />
+                              <rect x="60" y="68" width="8" height="6" fill="#ffffff" />
+                              <circle cx="40" cy="80" r="3.5" fill="#1e293b" />
+                              <circle cx="60" cy="80" r="3.5" fill="#1e293b" />
+                            </svg>
                           </div>
-                          <div onClick={() => setSimulatorScreen("favorites")} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)", padding: "10px", borderRadius: "4px", cursor: "pointer" }}>
-                            Favorites Stops
-                          </div>
-                          <div onClick={() => setSimulatorScreen("schedules")} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)", padding: "10px", borderRadius: "4px", cursor: "pointer" }}>
-                            Schedules
-                          </div>
+                          <h4 style={{ fontSize: "0.95rem", color: "#10b981", fontWeight: "600", fontFamily: "var(--font-sans)", marginTop: "8px" }}>Welcome Voyagers!</h4>
                         </div>
-                      </div>
-                    )}
-
-                    {/* Live map */}
-                    {simulatorApp === "student" && simulatorScreen === "map" && (
-                      <div style={{ display: "flex", flexDirection: "column", gap: "10px", height: "100%" }}>
-                        <select 
-                          value={simSelectedBus}
-                          onChange={(e) => setSimSelectedBus(e.target.value)}
-                          style={{ padding: "6px", borderRadius: "2px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", fontSize: "0.75rem" }}
-                        >
-                          <option value="Bus 2 (ML200000)">Bus 2 (ML200000)</option>
-                          <option value="Bus 1 (ML100000)">Bus 1 (ML100000)</option>
-                        </select>
-
-                        {/* Map drawing */}
-                        <div style={{ flex: 1, minHeight: "150px", border: "1px solid rgba(255,255,255,0.06)", borderRadius: "4px", position: "relative", overflow: "hidden" }}>
-                          <svg width="100%" height="100%" viewBox="0 0 200 150">
-                            <path d="M 20 120 C 60 20, 140 130, 180 30" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="2" />
-                            <path d="M 20 120 C 60 20, 140 130, 180 30" fill="none" stroke="#a5b4fc" strokeWidth="2" strokeDasharray="4 4" />
-                            
-                            {/* Stations */}
-                            <circle cx="20" cy="120" r="3" fill="#ffffff" />
-                            <circle cx="100" cy="75" r="3" fill="#ffffff" />
-                            <circle cx="180" cy="30" r="3" fill="#ffffff" />
-                            
-                            {/* Bus position */}
-                            {simDriverSharing ? (
-                              <g>
-                                <circle cx="100" cy="75" r="5" fill="#a5b4fc" />
-                                <text x="100" y="65" fontSize="7" fill="#fff" textAnchor="middle">Bus 2</text>
-                              </g>
-                            ) : (
-                              <text x="100" y="75" fontSize="7" fill="var(--text-muted)" textAnchor="middle">Offline</text>
-                            )}
-                          </svg>
-                        </div>
-
-                        <div style={{ padding: "8px", border: "1px solid rgba(255,255,255,0.05)", borderRadius: "4px", fontSize: "0.72rem" }}>
-                          <div style={{ display: "flex", justifyContent: "space-between" }}>
-                            <span>Status:</span>
-                            <span style={{ color: simDriverSharing ? "#ffffff" : "var(--text-muted)" }}>
-                              {simDriverSharing ? "Active Broadcast" : "Offline"}
-                            </span>
-                          </div>
-                          <div style={{ display: "flex", justifyContent: "space-between", marginTop: "4px" }}>
-                            <span>Telemetry Distance:</span>
-                            <span style={{ color: "var(--text-secondary)" }}>{simDriverSharing ? "16 meters" : "N/A"}</span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Favorites stop */}
-                    {simulatorApp === "student" && simulatorScreen === "favorites" && (
-                      <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                        <span style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>BOOKMARKED</span>
                         
-                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
-                          {simFavorites.map((fav, idx) => (
-                            <div key={idx} style={{ background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.04)", padding: "8px 10px", borderRadius: "4px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                              <div>
-                                <div style={{ color: "#fff", fontWeight: "500", fontSize: "0.72rem" }}>{fav.start}</div>
-                                <div style={{ fontSize: "0.65rem", color: "var(--text-muted)" }}>{fav.bus}</div>
+                        <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "10px", marginBottom: "20px" }}>
+                          <button onClick={() => setSimulatorScreen("dashboard")} style={{ width: "100%", padding: "10px", background: "linear-gradient(to right, #0ea5e9, #10b981)", color: "#ffffff", border: "none", borderRadius: "20px", fontWeight: "bold", fontSize: "0.75rem", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+                            🎓 Student
+                          </button>
+                          <button onClick={() => { setSimulatorApp("admin"); setSimulatorScreen("dashboard"); }} style={{ width: "100%", padding: "10px", background: "linear-gradient(to right, #0ea5e9, #10b981)", color: "#ffffff", border: "none", borderRadius: "20px", fontWeight: "bold", fontSize: "0.75rem", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+                            👤 Admin
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* --- STUDENT REGISTRATION/SIGNUP PAGE (5.3 b) --- */}
+                    {simulatorApp === "student" && simulatorScreen === "signup" && (
+                      <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "#ffffff" }}>
+                        <div style={{ background: "#0284c7", color: "#ffffff", padding: "10px 14px", display: "flex", alignItems: "center", gap: "8px" }}>
+                          <span style={{ fontSize: "0.9rem", cursor: "pointer" }} onClick={() => setSimulatorScreen("welcome")}>←</span>
+                          <span style={{ fontWeight: "600" }}>Signup</span>
+                        </div>
+                        <div style={{ flex: 1, padding: "14px", display: "flex", flexDirection: "column", gap: "8px", overflowY: "auto" }}>
+                          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                            {["Full Name", "Password", "Card ID", "Email", "Mobile Number", "Date of Birth", "Department"].map((placeholder, idx) => (
+                              <div key={idx} style={{ display: "flex", alignItems: "center", border: "1px solid #cbd5e1", borderRadius: "4px", padding: "6px 8px", background: "#f8fafc" }}>
+                                <span style={{ fontSize: "0.7rem", color: "#94a3b8", marginRight: "6px", width: "14px" }}>👤</span>
+                                <input 
+                                  type="text" 
+                                  placeholder={placeholder} 
+                                  disabled 
+                                  style={{ border: "none", background: "transparent", fontSize: "0.72rem", outline: "none", width: "100%", color: "#334155" }} 
+                                />
                               </div>
-                              <button 
-                                onClick={() => setSimFavorites(simFavorites.filter(f => f.id !== fav.id))}
-                                style={{ padding: "2px 4px", background: "transparent", border: "none", color: "var(--text-muted)", fontSize: "0.65rem", cursor: "pointer" }}
-                              >
-                                remove
-                              </button>
-                            </div>
-                          ))}
-                        </div>
-
-                        <form onSubmit={addFavoriteRoute} style={{ borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "12px", display: "flex", flexDirection: "column", gap: "8px" }}>
-                          <input 
-                            type="text" 
-                            placeholder="Add stop name..."
-                            value={favInput.start} 
-                            onChange={(e) => setFavInput({ ...favInput, start: e.target.value })}
-                            style={{ padding: "6px", borderRadius: "2px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", fontSize: "0.75rem" }} 
-                          />
-                          <button type="submit" style={{ padding: "6px", background: "rgba(255,255,255,0.08)", color: "#fff", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "2px", fontSize: "0.72rem", cursor: "pointer" }}>Save</button>
-                        </form>
-                      </div>
-                    )}
-
-                    {/* Schedules screen */}
-                    {simulatorApp === "student" && simulatorScreen === "schedules" && (
-                      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                        <span style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>TIMETABLES</span>
-                        <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.04)", padding: "8px", borderRadius: "4px" }}>
-                          <div style={{ color: "#fff", fontWeight: "500" }}>Bus 2 (ML200000)</div>
-                          <div style={{ fontSize: "0.65rem", color: "var(--text-muted)", marginTop: "2px" }}>Polo Stop: 1:33 AM</div>
-                          <div style={{ fontSize: "0.65rem", color: "var(--text-muted)" }}>NEHU Campus: 3:33 AM</div>
-                        </div>
-                        <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.04)", padding: "8px", borderRadius: "4px" }}>
-                          <div style={{ color: "#fff", fontWeight: "500" }}>Bus 1 (ML100000)</div>
-                          <div style={{ fontSize: "0.65rem", color: "var(--text-muted)", marginTop: "2px" }}>Mawlai Stop: 8:00 AM</div>
-                          <div style={{ fontSize: "0.65rem", color: "var(--text-muted)" }}>NEHU Campus: 9:00 AM</div>
+                            ))}
+                          </div>
+                          <button onClick={() => setSimulatorScreen("dashboard")} style={{ width: "100%", padding: "8px", background: "#ffffff", border: "1px solid #cbd5e1", color: "#64748b", borderRadius: "4px", fontSize: "0.72rem", fontWeight: "500", marginTop: "4px" }}>Signup</button>
+                          <button onClick={() => setSimulatorScreen("welcome")} style={{ width: "100%", padding: "8px", background: "#ffffff", border: "1px solid #cbd5e1", color: "#64748b", borderRadius: "4px", fontSize: "0.72rem", fontWeight: "500" }}>Back to Login</button>
                         </div>
                       </div>
                     )}
 
-                    {/* Driver Login */}
-                    {simulatorApp === "driver" && simulatorScreen === "login" && (
-                      <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", flex: 1, gap: "10px" }}>
-                        <span style={{ fontSize: "0.7rem", color: "var(--text-muted)", textAlign: "center" }}>DRIVER PORTAL</span>
-                        <input type="text" placeholder="Driver Email" style={{ padding: "6px", borderRadius: "2px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", fontSize: "0.75rem" }} />
-                        <input type="password" placeholder="Password" style={{ padding: "6px", borderRadius: "2px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", fontSize: "0.75rem" }} />
-                        <button onClick={() => setSimulatorScreen("sharing")} style={{ padding: "8px", background: "rgba(255,255,255,0.08)", color: "#fff", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "2px", cursor: "pointer", fontSize: "0.75rem" }}>Login</button>
+                    {/* --- STUDENT DASHBOARD PAGE (5.3 c, d) --- */}
+                    {simulatorApp === "student" && simulatorScreen === "dashboard" && (
+                      <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "#f8fafc" }}>
+                        <div style={{ background: "#0284c7", color: "#ffffff", padding: "10px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                            <span>≡</span>
+                            <span style={{ fontWeight: "600", fontSize: "0.85rem", letterSpacing: "0.03em" }}>NEHU BUS</span>
+                          </div>
+                          <span>🚌</span>
+                        </div>
+                        
+                        <div style={{ flex: 1, padding: "12px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", contentFit: "start" }}>
+                          
+                          <div onClick={() => setSimulatorScreen("map")} style={{ background: "#0284c7", borderRadius: "8px", padding: "14px 10px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "8px", color: "#ffffff", cursor: "pointer", boxShadow: "0 4px 6px -1px rgba(2, 132, 199, 0.2)" }}>
+                            <span style={{ fontSize: "1.2rem" }}>🚌</span>
+                            <span style={{ fontSize: "0.7rem", fontWeight: "600" }}>Bus Map</span>
+                          </div>
+
+                          <div onClick={() => setSimulatorScreen("routepage")} style={{ background: "#0284c7", borderRadius: "8px", padding: "14px 10px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "8px", color: "#ffffff", cursor: "pointer", boxShadow: "0 4px 6px -1px rgba(2, 132, 199, 0.2)" }}>
+                            <span style={{ fontSize: "1.2rem" }}>🛤️</span>
+                            <span style={{ fontSize: "0.7rem", fontWeight: "600" }}>Route</span>
+                          </div>
+
+                          <div onClick={() => setSimulatorScreen("livetrack")} style={{ background: "#0284c7", borderRadius: "8px", padding: "14px 10px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "8px", color: "#ffffff", cursor: "pointer", boxShadow: "0 4px 6px -1px rgba(2, 132, 199, 0.2)" }}>
+                            <span style={{ fontSize: "1.2rem" }}>🎯</span>
+                            <span style={{ fontSize: "0.7rem", fontWeight: "600" }}>Live Track</span>
+                          </div>
+
+                          <div onClick={() => setSimulatorScreen("favorites")} style={{ background: "#0284c7", borderRadius: "8px", padding: "14px 10px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "8px", color: "#ffffff", cursor: "pointer", boxShadow: "0 4px 6px -1px rgba(2, 132, 199, 0.2)" }}>
+                            <span style={{ fontSize: "1.2rem" }}>⭐</span>
+                            <span style={{ fontSize: "0.7rem", fontWeight: "600" }}>Favorite Routes</span>
+                          </div>
+
+                          <div onClick={() => setSimulatorScreen("schedules")} style={{ background: "#0284c7", borderRadius: "8px", padding: "14px 10px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "8px", color: "#ffffff", cursor: "pointer", boxShadow: "0 4px 6px -1px rgba(2, 132, 199, 0.2)" }}>
+                            <span style={{ fontSize: "1.2rem" }}>📞</span>
+                            <span style={{ fontSize: "0.7rem", fontWeight: "600" }}>Bus Schedule</span>
+                          </div>
+
+                          <div style={{ background: "#0284c7", borderRadius: "8px", padding: "14px 10px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "8px", color: "#ffffff", opacity: 0.9, cursor: "pointer" }}>
+                            <span style={{ fontSize: "1.2rem" }}>ℹ️</span>
+                            <span style={{ fontSize: "0.7rem", fontWeight: "600" }}>About</span>
+                          </div>
+                        </div>
+                        <div style={{ background: "#1e293b", color: "#ffffff", padding: "6px 12px", fontSize: "0.68rem" }}>
+                          Login successful!
+                        </div>
                       </div>
                     )}
 
-                    {/* Driver sharing location screen */}
-                    {simulatorApp === "driver" && simulatorScreen === "sharing" && (
-                      <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", flex: 1, gap: "16px", textAlign: "center" }}>
-                        <button
-                          onClick={() => setSimDriverSharing(!simDriverSharing)}
-                          style={{
-                            padding: "10px",
-                            background: "transparent",
-                            color: "#fff",
-                            border: "1px solid rgba(255,255,255,0.15)",
-                            borderRadius: "4px",
-                            fontSize: "0.75rem",
-                            cursor: "pointer"
-                          }}
-                        >
-                          {simDriverSharing ? "Disable GPS Broadcast" : "Enable GPS Broadcast"}
-                        </button>
-
-                        <div style={{ background: "rgba(255,255,255,0.01)", border: "1px solid rgba(255,255,255,0.03)", padding: "8px", borderRadius: "4px", fontSize: "0.68rem", color: "var(--text-secondary)", display: "flex", flexDirection: "column", gap: "2px" }}>
-                          <div>Lat: 25.60830</div>
-                          <div>Lng: 91.89097</div>
-                          <div style={{ marginTop: "4px", color: simDriverSharing ? "#ffffff" : "var(--text-muted)" }}>
-                            GPS: {simDriverSharing ? "ACTIVE" : "OFFLINE"}
+                    {/* --- BUS MAP SCREEN (5.3 e) --- */}
+                    {simulatorApp === "student" && simulatorScreen === "map" && (
+                      <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "#ffffff" }}>
+                        <div style={{ background: "#0284c7", color: "#ffffff", padding: "10px 14px", display: "flex", alignItems: "center", gap: "8px" }}>
+                          <span style={{ fontSize: "0.9rem", cursor: "pointer" }} onClick={() => setSimulatorScreen("dashboard")}>←</span>
+                          <span style={{ fontWeight: "600" }}>Bus Map</span>
+                        </div>
+                        <div style={{ flex: 1, padding: "12px", display: "flex", flexDirection: "column", gap: "8px", overflowY: "auto" }}>
+                          <h5 style={{ fontWeight: "bold", fontSize: "0.85rem", color: "#1e293b" }}>NEHU Bus Route Map</h5>
+                          <p style={{ fontSize: "0.68rem", color: "#64748b", margin: 0 }}>This map provides a detailed view of all bus routes within the NEHU campus.</p>
+                          
+                          <div style={{ fontSize: "0.75rem", fontWeight: "bold", color: "#0ea5e9", marginTop: "4px" }}>1. BUS NO 1 (ML-05)</div>
+                          <div style={{ height: "100px", border: "1px solid #cbd5e1", borderRadius: "4px", background: "#f8fafc", position: "relative" }}>
+                            <svg viewBox="0 0 100 80" width="100%" height="100%">
+                              <path d="M10,70 L30,50 L50,45 L70,25 L90,10" fill="none" stroke="#0ea5e9" strokeWidth="2" />
+                              <circle cx="10" cy="70" r="2.5" fill="#3b82f6" />
+                              <circle cx="50" cy="45" r="2.5" fill="#3b82f6" />
+                              <circle cx="90" cy="10" r="2.5" fill="#3b82f6" />
+                            </svg>
+                          </div>
+                          
+                          <div style={{ fontSize: "0.75rem", fontWeight: "bold", color: "#0ea5e9" }}>2. BUS NO 2 (ML-06)</div>
+                          <div style={{ height: "100px", border: "1px solid #cbd5e1", borderRadius: "4px", background: "#f8fafc", position: "relative" }}>
+                            <svg viewBox="0 0 100 80" width="100%" height="100%">
+                              <path d="M10,10 L30,30 L55,40 L60,70" fill="none" stroke="#0ea5e9" strokeWidth="2" />
+                              <circle cx="10" cy="10" r="2.5" fill="#3b82f6" />
+                              <circle cx="55" cy="40" r="2.5" fill="#3b82f6" />
+                              <circle cx="60" cy="70" r="2.5" fill="#3b82f6" />
+                            </svg>
                           </div>
                         </div>
                       </div>
                     )}
 
-                    {/* Admin Portal Dashboard */}
+                    {/* --- ROUTE SEARCH PAGE (5.3 f) --- */}
+                    {simulatorApp === "student" && simulatorScreen === "routepage" && (
+                      <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "#ffffff" }}>
+                        <div style={{ background: "#0284c7", color: "#ffffff", padding: "10px 14px", display: "flex", alignItems: "center", gap: "8px" }}>
+                          <span style={{ fontSize: "0.9rem", cursor: "pointer" }} onClick={() => setSimulatorScreen("dashboard")}>←</span>
+                          <span style={{ fontWeight: "600" }}>Route Page</span>
+                        </div>
+                        
+                        <div style={{ flex: 1, padding: "16px", display: "flex", flexDirection: "column", gap: "12px", justifyContent: "center" }}>
+                          
+                          <div style={{ display: "flex", alignItems: "center", border: "1px solid #cbd5e1", borderRadius: "4px", padding: "8px", background: "#f8fafc" }}>
+                            <span style={{ fontSize: "0.75rem", marginRight: "6px" }}>➔</span>
+                            <input type="text" placeholder="Start Point" disabled style={{ border: "none", background: "transparent", fontSize: "0.75rem", outline: "none", width: "100%" }} />
+                          </div>
+
+                          <div style={{ display: "flex", justifyContent: "center" }}>
+                            <button style={{ width: "28px", height: "28px", borderRadius: "50%", border: "1px solid #cbd5e1", background: "#f8fafc", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontSize: "0.8rem" }}>⇅</button>
+                          </div>
+
+                          <div style={{ display: "flex", alignItems: "center", border: "1px solid #cbd5e1", borderRadius: "4px", padding: "8px", background: "#f8fafc" }}>
+                            <span style={{ fontSize: "0.75rem", marginRight: "6px" }}>⬛</span>
+                            <input type="text" placeholder="End Point" disabled style={{ border: "none", background: "transparent", fontSize: "0.75rem", outline: "none", width: "100%" }} />
+                          </div>
+
+                          <button onClick={() => alert("Search executed")} style={{ width: "100%", padding: "10px", background: "#0284c7", color: "#ffffff", border: "none", borderRadius: "4px", fontWeight: "bold", fontSize: "0.78rem", cursor: "pointer", marginTop: "8px" }}>
+                            Search Route
+                          </button>
+                          
+                          <button onClick={() => setSimulatorScreen("dashboard")} style={{ width: "100%", padding: "8px", background: "#ffffff", border: "1px solid #cbd5e1", color: "#64748b", borderRadius: "4px", fontSize: "0.75rem", cursor: "pointer" }}>
+                            Back to Home
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* --- LIVE TRACK SCREEN (Figure 5.2 a) --- */}
+                    {simulatorApp === "student" && simulatorScreen === "livetrack" && (
+                      <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "#ffffff" }}>
+                        <div style={{ background: "#0284c7", color: "#ffffff", padding: "10px 14px", display: "flex", alignItems: "center", gap: "8px" }}>
+                          <span style={{ fontSize: "0.9rem", cursor: "pointer" }} onClick={() => setSimulatorScreen("dashboard")}>←</span>
+                          <span style={{ fontWeight: "600" }}>Bus Location Map</span>
+                        </div>
+                        
+                        <div style={{ flex: 1, padding: "12px", display: "flex", flexDirection: "column", gap: "8px" }}>
+                          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                            <label style={{ fontSize: "0.68rem", color: "#64748b", fontWeight: "500" }}>Select a bus:</label>
+                            <select 
+                              value={simSelectedBus}
+                              onChange={(e) => setSimSelectedBus(e.target.value)}
+                              style={{ width: "100%", padding: "6px", border: "1px solid #cbd5e1", borderRadius: "4px", fontSize: "0.75rem", outline: "none", background: "#f8fafc" }}
+                            >
+                              <option value="Bus 2 (ML200000)">Bus 2 (ML200000)</option>
+                              <option value="Bus 1 (ML100000)">Bus 1 (ML100000)</option>
+                            </select>
+                          </div>
+
+                          <div style={{ display: "flex", gap: "8px", marginTop: "4px" }}>
+                            <button onClick={() => setSimDriverSharing(true)} style={{ flex: 1, padding: "8px", background: "#ff4f00", color: "#ffffff", border: "none", borderRadius: "4px", fontWeight: "bold", fontSize: "0.72rem", cursor: "pointer" }}>Search</button>
+                            <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid #cbd5e1", borderRadius: "4px", background: "#f8fafc", fontSize: "0.7rem", fontWeight: "600", color: "#334155" }}>
+                              {simSelectedBus.split(" ")[0] + " " + simSelectedBus.split(" ")[1]}
+                            </div>
+                          </div>
+
+                          {/* Sandy Map illustration */}
+                          <div style={{ flex: 1, minHeight: "140px", border: "1px solid #cbd5e1", borderRadius: "4px", background: "#fef8ec", position: "relative", overflow: "hidden", marginTop: "4px" }}>
+                            {/* Distance Label */}
+                            <div style={{ position: "absolute", top: "10px", right: "10px", background: "#ffffff", border: "1px solid #cbd5e1", padding: "4px 8px", borderRadius: "10px", fontSize: "0.65rem", fontWeight: "bold", color: "#1e293b", zIndex: 10 }}>
+                              Distance: 16 m
+                            </div>
+                            
+                            {/* Road paths drawn */}
+                            <svg viewBox="0 0 200 150" width="100%" height="100%">
+                              <path d="M 30,120 Q 80,100, 110,60 T 170,30" fill="none" stroke="#cbd5e1" strokeWidth="12" strokeLinecap="round" />
+                              <path d="M 30,120 Q 80,100, 110,60 T 170,30" fill="none" stroke="#ffffff" strokeWidth="10" strokeLinecap="round" strokeDasharray="4 4" />
+                              
+                              {/* Pins */}
+                              <circle cx="110" cy="60" r="4" fill="#3b82f6" /> {/* Blue pin */}
+                              <circle cx="130" cy="50" r="4" fill="#ef4444" /> {/* Red pin */}
+                            </svg>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* --- FAVORITE ROUTE SCREEN (Figure 5.2 b) --- */}
+                    {simulatorApp === "student" && simulatorScreen === "favorites" && (
+                      <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "#ffffff" }}>
+                        <div style={{ background: "#0284c7", color: "#ffffff", padding: "10px 14px", display: "flex", alignItems: "center", gap: "8px" }}>
+                          <span style={{ fontSize: "0.9rem", cursor: "pointer" }} onClick={() => setSimulatorScreen("dashboard")}>←</span>
+                          <span style={{ fontWeight: "600" }}>Favorite Routes</span>
+                        </div>
+                        
+                        <div style={{ flex: 1, padding: "12px", display: "flex", flexDirection: "column", gap: "8px", overflowY: "auto" }}>
+                          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                            <select style={{ width: "100%", padding: "6px", border: "1px solid #cbd5e1", borderRadius: "4px", fontSize: "0.75rem" }} disabled>
+                              <option>Select Bus</option>
+                            </select>
+                            <select style={{ width: "100%", padding: "6px", border: "1px solid #cbd5e1", borderRadius: "4px", fontSize: "0.75rem" }} disabled>
+                              <option>Select Start Point</option>
+                            </select>
+                          </div>
+
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", margin: "6px 0" }}>
+                            <span style={{ fontSize: "0.72rem", color: "#64748b", fontWeight: "500" }}>Enable Notification</span>
+                            {/* Toggle switch style */}
+                            <div style={{ width: "32px", height: "16px", background: "#cbd5e1", borderRadius: "10px", position: "relative", cursor: "pointer" }}>
+                              <div style={{ width: "12px", height: "12px", background: "#ffffff", borderRadius: "50%", position: "absolute", top: "2px", left: "2px" }} />
+                            </div>
+                          </div>
+
+                          <button onClick={addFavoriteRoute} style={{ width: "100%", padding: "8px", background: "#f1f5f9", border: "1px solid #cbd5e1", color: "#475569", borderRadius: "4px", fontSize: "0.72rem", fontWeight: "600", cursor: "pointer" }}>
+                            Add Favorite Route
+                          </button>
+
+                          <h5 style={{ fontWeight: "bold", fontSize: "0.78rem", color: "#1e293b", marginTop: "12px", borderBottom: "1px solid #e2e8f0", paddingBottom: "4px" }}>Your Favorite Routes:</h5>
+                          <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                            {simFavorites.map((fav, idx) => (
+                              <div key={idx} style={{ background: "#f8fafc", border: "1px solid #e2e8f0", padding: "6px 10px", borderRadius: "4px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                                <div>
+                                  <div style={{ color: "#334155", fontWeight: "600", fontSize: "0.72rem" }}>{fav.start}</div>
+                                  <div style={{ fontSize: "0.62rem", color: "#64748b" }}>{fav.bus}</div>
+                                </div>
+                                <span style={{ fontSize: "0.8rem", color: "#ef4444", cursor: "pointer" }} onClick={() => setSimFavorites(simFavorites.filter(f => f.id !== fav.id))}>×</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* --- BUS SCHEDULE SCREEN (Figure 5.2 c) --- */}
+                    {simulatorApp === "student" && simulatorScreen === "schedules" && (
+                      <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "#ffffff" }}>
+                        <div style={{ background: "#0284c7", color: "#ffffff", padding: "10px 14px", display: "flex", alignItems: "center", gap: "8px" }}>
+                          <span style={{ fontSize: "0.9rem", cursor: "pointer" }} onClick={() => setSimulatorScreen("dashboard")}>←</span>
+                          <span style={{ fontWeight: "600" }}>Bus Schedule</span>
+                        </div>
+                        
+                        <div style={{ flex: 1, padding: "12px", display: "flex", flexDirection: "column", gap: "8px" }}>
+                          <div style={{ background: "#f1f5f9", border: "1px solid #e2e8f0", padding: "10px", borderRadius: "6px" }}>
+                            <div style={{ color: "#1e293b", fontWeight: "bold", fontSize: "0.75rem" }}>Bus 2 - ML200000</div>
+                            <div style={{ fontSize: "0.68rem", color: "#64748b", marginTop: "4px" }}>Start: polo at 1:33 AM</div>
+                            <div style={{ fontSize: "0.68rem", color: "#64748b" }}>End: nehu at 3:33 AM</div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* --- DRIVER LOGIN SCREEN --- */}
+                    {simulatorApp === "driver" && simulatorScreen === "login" && (
+                      <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyItems: "center", justifyContent: "center", padding: "20px", gap: "10px", background: "#ffffff" }}>
+                        <h5 style={{ fontSize: "0.9rem", color: "#0284c7", fontWeight: "bold", textAlign: "center", marginBottom: "10px" }}>Driver Portal</h5>
+                        <input type="text" placeholder="Email (Username)" style={{ padding: "8px", border: "1px solid #cbd5e1", borderRadius: "4px", fontSize: "0.75rem" }} />
+                        <input type="password" placeholder="Password" style={{ padding: "8px", border: "1px solid #cbd5e1", borderRadius: "4px", fontSize: "0.75rem" }} />
+                        <select style={{ padding: "8px", border: "1px solid #cbd5e1", borderRadius: "4px", fontSize: "0.75rem", background: "#f8fafc" }}>
+                          <option>Select a Bus ID</option>
+                          <option>Bus ID: 1</option>
+                          <option>Bus ID: 2</option>
+                        </select>
+                        <button onClick={() => setSimulatorScreen("sharing")} style={{ padding: "10px", background: "#0284c7", color: "#ffffff", border: "none", borderRadius: "4px", fontWeight: "bold", cursor: "pointer", fontSize: "0.78rem" }}>Login</button>
+                      </div>
+                    )}
+
+                    {/* --- DRIVER BROADCAST SCREEN --- */}
+                    {simulatorApp === "driver" && simulatorScreen === "sharing" && (
+                      <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "#ffffff" }}>
+                        <div style={{ background: "#0284c7", color: "#ffffff", padding: "10px 14px", display: "flex", justifyContent: "space-between" }}>
+                          <span style={{ fontWeight: "600" }}>Bus ID: 2</span>
+                          <span style={{ cursor: "pointer" }} onClick={() => setSimulatorScreen("login")}>Logout</span>
+                        </div>
+                        
+                        <div style={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", padding: "20px", gap: "16px" }}>
+                          <button 
+                            onClick={() => setSimDriverSharing(!simDriverSharing)}
+                            style={{ padding: "10px 20px", background: simDriverSharing ? "#e2e8f0" : "#0284c7", color: simDriverSharing ? "#475569" : "#ffffff", border: "1px solid #cbd5e1", borderRadius: "20px", fontWeight: "bold", fontSize: "0.75rem", cursor: "pointer" }}
+                          >
+                            {simDriverSharing ? "Stop Sharing Location" : "Start Sharing Location"}
+                          </button>
+
+                          <div style={{ background: "#f8fafc", border: "1px solid #cbd5e1", padding: "12px", borderRadius: "6px", width: "100%", fontSize: "0.72rem", color: "#475569", display: "flex", flexDirection: "column", gap: "4px" }}>
+                            <div style={{ textAlign: "center", fontWeight: "600", color: "#1e293b", marginBottom: "4px" }}>Current Location:</div>
+                            <div>Lat: <strong>25.6083036</strong></div>
+                            <div>Lng: <strong>91.8909736</strong></div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* --- ADMIN DASHBOARD PAGE (5.4 b) --- */}
                     {simulatorApp === "admin" && simulatorScreen === "dashboard" && (
-                      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                        <span style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>ADMIN OPTIONS</span>
-                        <div onClick={() => setSimulatorScreen("addroute")} style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)", padding: "10px", borderRadius: "4px", cursor: "pointer" }}>
-                          Configure Routes
+                      <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "#f8fafc" }}>
+                        <div style={{ background: "#0284c7", color: "#ffffff", padding: "10px 14px", display: "flex", alignItems: "center", gap: "8px" }}>
+                          <span>≡</span>
+                          <span style={{ fontWeight: "600", fontSize: "0.85rem" }}>Admin Dashboard</span>
                         </div>
-                        <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.04)", padding: "10px", borderRadius: "4px", opacity: 0.5 }}>
-                          Configure Drivers
+                        
+                        <div style={{ flex: 1, padding: "12px", display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                          <div onClick={() => setSimulatorScreen("welcome")} style={{ background: "#0284c7", borderRadius: "8px", padding: "12px 6px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "6px", color: "#ffffff", cursor: "pointer" }}>
+                            <span style={{ fontSize: "1.2rem" }}>👤➕</span>
+                            <span style={{ fontSize: "0.68rem", fontWeight: "600" }}>Add Driver</span>
+                          </div>
+
+                          <div style={{ background: "#0284c7", borderRadius: "8px", padding: "12px 6px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "6px", color: "#ffffff", cursor: "pointer", opacity: 0.9 }}>
+                            <span style={{ fontSize: "1.2rem" }}>👤❌</span>
+                            <span style={{ fontSize: "0.68rem", fontWeight: "600" }}>Delete Driver</span>
+                          </div>
+
+                          <div style={{ background: "#0284c7", borderRadius: "8px", padding: "12px 6px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "6px", color: "#ffffff", cursor: "pointer", opacity: 0.9 }}>
+                            <span style={{ fontSize: "1.2rem" }}>🚌➕</span>
+                            <span style={{ fontSize: "0.68rem", fontWeight: "600" }}>Add Bus</span>
+                          </div>
+
+                          <div style={{ background: "#0284c7", borderRadius: "8px", padding: "12px 6px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "6px", color: "#ffffff", cursor: "pointer", opacity: 0.9 }}>
+                            <span style={{ fontSize: "1.2rem" }}>🚌🛠️</span>
+                            <span style={{ fontSize: "0.68rem", fontWeight: "600" }}>Modify/Delete Bus</span>
+                          </div>
+
+                          <div onClick={() => setSimulatorScreen("addroute")} style={{ background: "#0284c7", borderRadius: "8px", padding: "12px 6px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "6px", color: "#ffffff", cursor: "pointer" }}>
+                            <span style={{ fontSize: "1.2rem" }}>🛤️➕</span>
+                            <span style={{ fontSize: "0.68rem", fontWeight: "600" }}>Add Route</span>
+                          </div>
+
+                          <div onClick={() => setSimulatorScreen("modifyroute")} style={{ background: "#0284c7", borderRadius: "8px", padding: "12px 6px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "6px", color: "#ffffff", cursor: "pointer" }}>
+                            <span style={{ fontSize: "1.2rem" }}>🛤️🛠️</span>
+                            <span style={{ fontSize: "0.68rem", fontWeight: "600" }}>Modify/Delete Route</span>
+                          </div>
                         </div>
                       </div>
                     )}
 
-                    {/* Admin Add Route */}
+                    {/* --- ADMIN ADD ROUTE (Figure 5.4 a) --- */}
                     {simulatorApp === "admin" && simulatorScreen === "addroute" && (
-                      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                        <span style={{ fontSize: "0.7rem", color: "var(--text-muted)" }}>NEW ROUTE</span>
-                        <input type="text" placeholder="Route ID" style={{ padding: "6px", borderRadius: "2px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", fontSize: "0.75rem" }} />
-                        <input type="text" placeholder="Start Point" style={{ padding: "6px", borderRadius: "2px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", fontSize: "0.75rem" }} />
-                        <input type="text" placeholder="End Point" style={{ padding: "6px", borderRadius: "2px", background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.1)", color: "#fff", fontSize: "0.75rem" }} />
-                        <button 
-                          onClick={() => {
-                            alert("Route properties saved.");
-                            setSimulatorScreen("dashboard");
-                          }} 
-                          style={{ padding: "8px", background: "rgba(255,255,255,0.08)", color: "#fff", border: "1px solid rgba(255,255,255,0.12)", borderRadius: "2px", cursor: "pointer", fontSize: "0.75rem" }}
-                        >
-                          Save settings
-                        </button>
+                      <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "#ffffff" }}>
+                        <div style={{ background: "#0284c7", color: "#ffffff", padding: "10px 14px", display: "flex", alignItems: "center", gap: "8px" }}>
+                          <span style={{ fontSize: "0.9rem", cursor: "pointer" }} onClick={() => setSimulatorScreen("dashboard")}>←</span>
+                          <span style={{ fontWeight: "600" }}>Add New Route</span>
+                        </div>
+                        
+                        <div style={{ flex: 1, padding: "12px", display: "flex", flexDirection: "column", gap: "8px", overflowY: "auto" }}>
+                          
+                          <select style={{ width: "100%", padding: "6px", border: "1px solid #cbd5e1", borderRadius: "4px", fontSize: "0.75rem", background: "#f8fafc" }} disabled>
+                            <option>Select Bus</option>
+                          </select>
+
+                          <div style={{ border: "1px solid #cbd5e1", borderRadius: "4px", padding: "6px 8px", background: "#f8fafc" }}>
+                            <input type="text" placeholder="Route ID" disabled style={{ border: "none", background: "transparent", fontSize: "0.72rem", width: "100%" }} />
+                          </div>
+
+                          <div style={{ display: "flex", gap: "6px" }}>
+                            <div style={{ flex: 1, border: "1px solid #cbd5e1", borderRadius: "4px", padding: "6px 8px", background: "#f8fafc" }}>
+                              <input type="text" placeholder="Start Point" disabled style={{ border: "none", background: "transparent", fontSize: "0.72rem", width: "100%" }} />
+                            </div>
+                            <div style={{ width: "65px", border: "1px solid #cbd5e1", borderRadius: "4px", padding: "6px 8px", background: "#f8fafc" }}>
+                              <input type="text" placeholder="Time" disabled style={{ border: "none", background: "transparent", fontSize: "0.72rem", width: "100%" }} />
+                            </div>
+                          </div>
+
+                          <div style={{ fontSize: "0.7rem", color: "#64748b", fontWeight: "bold", marginTop: "4px" }}>Via Points</div>
+                          <button style={{ width: "100%", padding: "6px", background: "#f1f5f9", border: "1px solid #cbd5e1", color: "#64748b", borderRadius: "4px", fontSize: "0.7rem", cursor: "pointer" }}>Add More Via Points</button>
+
+                          <div style={{ display: "flex", gap: "6px", marginTop: "4px" }}>
+                            <div style={{ flex: 1, border: "1px solid #cbd5e1", borderRadius: "4px", padding: "6px 8px", background: "#f8fafc" }}>
+                              <input type="text" placeholder="End Point" disabled style={{ border: "none", background: "transparent", fontSize: "0.72rem", width: "100%" }} />
+                            </div>
+                            <div style={{ width: "65px", border: "1px solid #cbd5e1", borderRadius: "4px", padding: "6px 8px", background: "#f8fafc" }}>
+                              <input type="text" placeholder="Time" disabled style={{ border: "none", background: "transparent", fontSize: "0.72rem", width: "100%" }} />
+                            </div>
+                          </div>
+
+                          <button onClick={() => { alert("Route Added"); setSimulatorScreen("dashboard"); }} style={{ width: "100%", padding: "8px", background: "#10b981", color: "#ffffff", border: "none", borderRadius: "20px", fontWeight: "bold", fontSize: "0.75rem", cursor: "pointer", marginTop: "8px" }}>
+                            Add Route
+                          </button>
+                        </div>
                       </div>
                     )}
 
+                    {/* --- ADMIN MODIFY/DELETE ROUTE (Figure 5.4 b) --- */}
+                    {simulatorApp === "admin" && simulatorScreen === "modifyroute" && (
+                      <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "#ffffff" }}>
+                        <div style={{ background: "#0284c7", color: "#ffffff", padding: "10px 14px", display: "flex", alignItems: "center", gap: "8px" }}>
+                          <span style={{ fontSize: "0.9rem", cursor: "pointer" }} onClick={() => setSimulatorScreen("dashboard")}>←</span>
+                          <span style={{ fontWeight: "600" }}>Modify/Delete Route</span>
+                        </div>
+                        
+                        <div style={{ flex: 1, padding: "12px", display: "flex", flexDirection: "column", gap: "8px", overflowY: "auto" }}>
+                          
+                          <div style={{ fontSize: "0.68rem", color: "#64748b" }}>Search by Route ID</div>
+                          <div style={{ display: "flex", gap: "6px" }}>
+                            <div style={{ flex: 1, border: "1px solid #cbd5e1", borderRadius: "4px", padding: "6px", background: "#f8fafc" }}>
+                              <input type="text" placeholder="Search ID..." defaultValue="1" style={{ border: "none", background: "transparent", fontSize: "0.72rem", width: "100%", outline: "none" }} />
+                            </div>
+                            <button style={{ padding: "6px 12px", background: "#f1f5f9", border: "1px solid #cbd5e1", color: "#475569", borderRadius: "4px", fontSize: "0.7rem", cursor: "pointer" }}>Search</button>
+                          </div>
+
+                          <div style={{ border: "1px solid #cbd5e1", borderRadius: "4px", padding: "6px 8px", background: "#f8fafc", marginTop: "4px" }}>
+                            <input type="text" placeholder="Route ID" defaultValue="1" disabled style={{ border: "none", background: "transparent", fontSize: "0.72rem", width: "100%", color: "#334155" }} />
+                          </div>
+
+                          <div style={{ display: "flex", gap: "6px" }}>
+                            <div style={{ flex: 1, border: "1px solid #cbd5e1", borderRadius: "4px", padding: "6px 8px", background: "#f8fafc" }}>
+                              <input type="text" placeholder="Start Point" defaultValue="polo" disabled style={{ border: "none", background: "transparent", fontSize: "0.72rem", width: "100%", color: "#334155" }} />
+                            </div>
+                            <div style={{ width: "65px", border: "1px solid #cbd5e1", borderRadius: "4px", padding: "6px 8px", background: "#f8fafc" }}>
+                              <input type="text" placeholder="Time" defaultValue="3:57 AM" disabled style={{ border: "none", background: "transparent", fontSize: "0.72rem", width: "100%", color: "#334155" }} />
+                            </div>
+                          </div>
+
+                          <div style={{ fontSize: "0.7rem", color: "#64748b", fontWeight: "bold" }}>Via Points</div>
+                          
+                          <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                            {["pb (5:57 AM)", "pb1 (7:58 AM)"].map((val, idx) => (
+                              <div key={idx} style={{ display: "flex", gap: "6px" }}>
+                                <div style={{ flex: 1, border: "1px solid #cbd5e1", borderRadius: "4px", padding: "6px 8px", background: "#f8fafc" }}>
+                                  <input type="text" defaultValue={val.split(" ")[0]} disabled style={{ border: "none", background: "transparent", fontSize: "0.72rem", width: "100%", color: "#334155" }} />
+                                </div>
+                                <div style={{ width: "65px", border: "1px solid #cbd5e1", borderRadius: "4px", padding: "6px 8px", background: "#f8fafc" }}>
+                                  <input type="text" defaultValue={val.split("(")[1].slice(0, -1)} disabled style={{ border: "none", background: "transparent", fontSize: "0.72rem", width: "100%", color: "#334155" }} />
+                                </div>
+                                <span style={{ color: "#ef4444", alignSelf: "center", cursor: "pointer", fontSize: "0.85rem" }}>⊖</span>
+                              </div>
+                            ))}
+                          </div>
+
+                          <button style={{ width: "100%", padding: "6px", background: "#f1f5f9", border: "1px solid #cbd5e1", color: "#64748b", borderRadius: "4px", fontSize: "0.7rem" }}>Add More Via Points</button>
+
+                          <div style={{ display: "flex", gap: "6px" }}>
+                            <div style={{ flex: 1, border: "1px solid #cbd5e1", borderRadius: "4px", padding: "6px 8px", background: "#f8fafc" }}>
+                              <input type="text" placeholder="End Point" defaultValue="nehu" disabled style={{ border: "none", background: "transparent", fontSize: "0.72rem", width: "100%", color: "#334155" }} />
+                            </div>
+                            <div style={{ width: "65px", border: "1px solid #cbd5e1", borderRadius: "4px", padding: "6px 8px", background: "#f8fafc" }}>
+                              <input type="text" placeholder="Time" defaultValue="7:57 AM" disabled style={{ border: "none", background: "transparent", fontSize: "0.72rem", width: "100%", color: "#334155" }} />
+                            </div>
+                          </div>
+
+                          <div style={{ display: "flex", flexDirection: "column", gap: "6px", marginTop: "8px" }}>
+                            <button onClick={() => { alert("Route Updated"); setSimulatorScreen("dashboard"); }} style={{ width: "100%", padding: "8px", background: "#0284c7", color: "#ffffff", border: "none", borderRadius: "20px", fontWeight: "bold", fontSize: "0.75rem", cursor: "pointer" }}>
+                              Modify Route
+                            </button>
+                            <button onClick={() => { alert("Route Deleted"); setSimulatorScreen("dashboard"); }} style={{ width: "100%", padding: "8px", background: "#ef4444", color: "#ffffff", border: "none", borderRadius: "20px", fontWeight: "bold", fontSize: "0.75rem", cursor: "pointer" }}>
+                              Delete Route
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                  </div>
+
+                  {/* Simulator tab bottom nav */}
+                  <div style={{ 
+                    display: "flex", 
+                    background: "#0c0c0e", 
+                    borderTop: "1px solid rgba(255,255,255,0.06)", 
+                    padding: "8px 0"
+                  }}>
+                    <button 
+                      onClick={() => { setSimulatorApp("student"); setSimulatorScreen("dashboard"); }}
+                      style={{ flex: 1, border: "none", background: "transparent", color: simulatorApp === "student" ? "#ffffff" : "#64748b", fontSize: "0.6rem", fontWeight: "600", cursor: "pointer" }}
+                    >
+                      🎓 Student
+                    </button>
+                    <button 
+                      onClick={() => { setSimulatorApp("driver"); setSimulatorScreen("login"); }}
+                      style={{ flex: 1, border: "none", background: "transparent", color: simulatorApp === "driver" ? "#ffffff" : "#64748b", fontSize: "0.6rem", fontWeight: "600", cursor: "pointer" }}
+                    >
+                      🚛 Driver
+                    </button>
+                    <button 
+                      onClick={() => { setSimulatorApp("admin"); setSimulatorScreen("dashboard"); }}
+                      style={{ flex: 1, border: "none", background: "transparent", color: simulatorApp === "admin" ? "#ffffff" : "#64748b", fontSize: "0.6rem", fontWeight: "600", cursor: "pointer" }}
+                    >
+                      🛠️ Admin
+                    </button>
                   </div>
                 </div>
 
